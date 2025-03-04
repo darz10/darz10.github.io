@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reminder Bot Web App</title>
+    <style>
+        :root {
+            --primary-color: #2481cc;
+            --background: #f5f6f8;
+            --text-color: #2a2a2e;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        body {
+            background: var(--background);
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Шапка */
+        .header {
+            background: white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            padding: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .header h1 {
+            color: var(--primary-color);
+            font-size: 1.8rem;
+        }
+
+        /* Основной контент */
+        .main-layout {
+            display: grid;
+            gap: 2rem;
+            grid-template-columns: 250px 1fr;
+        }
+
+        /* Боковая панель */
+        .sidebar {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .nav-list {
+            list-style: none;
+        }
+
+        .nav-item {
+            margin: 1rem 0;
+        }
+
+        .nav-item a {
+            text-decoration: none;
+            color: var(--text-color);
+            padding: 0.5rem;
+            display: block;
+            border-radius: 6px;
+        }
+
+        .nav-item a:hover {
+            background: #f0f2f5;
+        }
+
+        /* Форма создания напоминания */
+        .reminder-form {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        input, textarea, select {
+            width: 100%;
+            padding: 0.8rem;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .btn {
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: #e3e5e8;
+            color: var(--text-color);
+        }
+
+        /* Список напоминаний */
+        .reminders-list {
+            margin-top: 2rem;
+        }
+
+        .reminder-card {
+            background: white;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .reminder-info {
+            flex-grow: 1;
+        }
+
+        .reminder-title {
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+        }
+
+        .reminder-meta {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .reminder-actions {
+            display: flex;
+            gap: 1rem;
+        }
+
+        /* Адаптивность */
+        @media (max-width: 768px) {
+            .main-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .sidebar {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <h1>Reminder Bot</h1>
+        </div>
+    </header>
+
+    <main class="container">
+        <div class="main-layout">
+            <aside class="sidebar">
+                <nav>
+                    <ul class="nav-list">
+                        <li class="nav-item"><a href="#">Все напоминания</a></li>
+                        <li class="nav-item"><a href="#">Повторяющиеся</a></li>
+                        <li class="nav-item"><a href="#">Архив</a></li>
+                        <li class="nav-item"><a href="#">Настройки</a></li>
+                    </ul>
+                </nav>
+            </aside>
+
+            <div class="content">
+                <form class="reminder-form">
+                    <div class="form-group">
+                        <label for="title">Название напоминания</label>
+                        <input type="text" id="title" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="description">Описание</label>
+                        <textarea id="description" rows="3"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="datetime">Дата и время</label>
+                        <input type="datetime-local" id="datetime" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="repeat">Повторение</label>
+                        <select id="repeat">
+                            <option value="none">Не повторять</option>
+                            <option value="daily">Ежедневно</option>
+                            <option value="weekly">Еженедельно</option>
+                            <option value="monthly">Ежемесячно</option>
+                        </select>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">Создать напоминание</button>
+                        <button type="button" class="btn btn-secondary">Отмена</button>
+                    </div>
+                </form>
+
+                <div class="reminders-list">
+                    <div class="reminder-card">
+                        <div class="reminder-info">
+                            <div class="reminder-title">Встреча с командой</div>
+                            <div class="reminder-meta">
+                                <span>Сегодня в 15:00</span> • 
+                                <span>Повторение: Еженедельно</span>
+                            </div>
+                        </div>
+                        <div class="reminder-actions">
+                            <button class="btn btn-secondary">Редактировать</button>
+                            <button class="btn btn-secondary">Удалить</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</body>
+</html>
