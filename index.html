@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 <html lang="ru">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reminder Bot Web App</title>
+    <title>Rememor</title>
     <style>
         :root {
             --primary-color: #2481cc;
@@ -22,6 +23,9 @@
             background: var(--background);
             color: var(--text-color);
             line-height: 1.6;
+
+            background: var(--tg-theme-bg-color);
+            color: var(--tg-theme-text-color);
         }
 
         .container {
@@ -32,10 +36,52 @@
 
         /* Шапка */
         .header {
+            background: var(--tg-theme-secondary-bg-color);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+
+
             background: white;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
             padding: 1rem;
             margin-bottom: 2rem;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .btn-primary {
+            background: var(--tg-theme-button-color);
+            color: var(--tg-theme-button-text-color);
+        }
+
+        .btn-secondary {
+            background: var(--tg-theme-hint-color);
+            color: var(--tg-theme-text-color);
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+        }
+
+        .logo {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: url('logo.png') no-repeat center/cover;
+            margin-right: 10px;
+            border-color: #2a2a2e;
+        }
+
+        .header-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
         }
 
         .header h1 {
@@ -55,7 +101,7 @@
             background: white;
             padding: 1.5rem;
             border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
         }
 
         .nav-list {
@@ -83,7 +129,12 @@
             background: white;
             padding: 2rem;
             border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+        }
+
+        .hidden {
+            display: none;
         }
 
         .form-group {
@@ -96,7 +147,9 @@
             font-weight: 500;
         }
 
-        input, textarea, select {
+        input,
+        textarea,
+        select {
             width: 100%;
             padding: 0.8rem;
             border: 1px solid #ddd;
@@ -139,7 +192,7 @@
             padding: 1.5rem;
             margin-bottom: 1rem;
             border-radius: 12px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -164,6 +217,44 @@
             gap: 1rem;
         }
 
+        .logo-container {
+            display: flex;
+            align-items: center;
+        }
+
+        .burger-menu {
+            display: none;
+            flex-direction: column;
+            cursor: pointer;
+        }
+
+        .burger-menu div {
+            width: 25px;
+            height: 3px;
+            background-color: var(--text-color);
+            margin: 5px 0;
+        }
+
+        .mobile-nav {
+            display: none;
+            flex-direction: column;
+            position: absolute;
+            top: 60px;
+            right: 10px;
+            background: white;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            padding: 10px;
+            border-radius: 8px;
+        }
+
+        .mobile-nav a {
+            text-decoration: none;
+            color: var(--text-color);
+            padding: 10px;
+            display: block;
+        }
+
+
         /* Адаптивность */
         @media (max-width: 768px) {
             .main-layout {
@@ -173,14 +264,75 @@
             .sidebar {
                 display: none;
             }
+
+            .burger-menu {
+                display: flex;
+            }
+
+            .mobile-nav.active {
+                display: flex;
+            }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                font-size: 0.9rem;
+            }
+        }
+
+        /* Средние экраны */
+        @media (min-width: 481px) and (max-width: 768px) {
+            body {
+                font-size: 1rem;
+            }
+        }
+
+        /* Большие экраны */
+        @media (min-width: 769px) {
+            body {
+                font-size: 1.1rem;
+            }
+        }
+
+        @media (min-width: 768px) and (max-width: 1024px) {
+            .main-layout {
+                grid-template-columns: 200px 1fr;
+            }
+        }
+
+        /* Большие экраны */
+        @media (min-width: 1025px) {
+            .main-layout {
+                grid-template-columns: 250px 1fr;
+            }
+        }
+
+        .container {
+            max-width: 100%;
+            padding: 1rem;
+        }
+
+        .header h1 {
+            font-size: 1.5rem;
         }
     </style>
 </head>
+
 <body>
     <header class="header">
-        <div class="container">
-            <h1>Reminder Bot</h1>
+        <div class="logo-container">
+            <div class="logo"></div>
+            <h1>Rememor</h1>
         </div>
+        <div class="burger-menu" onclick="toggleMenu()">
+            <div></div>
+            <div></div>
+            <div></div>
+        </div>
+        <nav class="mobile-nav" id="mobileNav">
+            <a href="#">Все напоминания</a>
+            <a href="#">Настройки</a>
+        </nav>
     </header>
 
     <main class="container">
@@ -189,8 +341,6 @@
                 <nav>
                     <ul class="nav-list">
                         <li class="nav-item"><a href="#">Все напоминания</a></li>
-                        <li class="nav-item"><a href="#">Повторяющиеся</a></li>
-                        <li class="nav-item"><a href="#">Архив</a></li>
                         <li class="nav-item"><a href="#">Настройки</a></li>
                     </ul>
                 </nav>
@@ -198,6 +348,14 @@
 
             <div class="content">
                 <form class="reminder-form">
+                    <div class="form-group">
+                        <label for="repeat">Тип напоминания</label>
+                        <select id="repeat">
+                            <option value="daily">Одноразовое</option>
+                            <option value="none">Цикличное</option>
+                        </select>
+                    </div>
+
                     <div class="form-group">
                         <label for="title">Название напоминания</label>
                         <input type="text" id="title" required>
@@ -213,39 +371,60 @@
                         <input type="datetime-local" id="datetime" required>
                     </div>
 
-                    <div class="form-group">
-                        <label for="repeat">Повторение</label>
-                        <select id="repeat">
-                            <option value="none">Не повторять</option>
-                            <option value="daily">Ежедневно</option>
-                            <option value="weekly">Еженедельно</option>
-                            <option value="monthly">Ежемесячно</option>
-                        </select>
-                    </div>
-
                     <div class="form-actions">
                         <button type="submit" class="btn btn-primary">Создать напоминание</button>
                         <button type="button" class="btn btn-secondary">Отмена</button>
                     </div>
                 </form>
-
-                <div class="reminders-list">
-                    <div class="reminder-card">
-                        <div class="reminder-info">
-                            <div class="reminder-title">Встреча с командой</div>
-                            <div class="reminder-meta">
-                                <span>Сегодня в 15:00</span> • 
-                                <span>Повторение: Еженедельно</span>
-                            </div>
-                        </div>
-                        <div class="reminder-actions">
-                            <button class="btn btn-secondary">Редактировать</button>
-                            <button class="btn btn-secondary">Удалить</button>
-                        </div>
-                    </div>
-                </div>
             </div>
         </div>
     </main>
+    <script>
+        const reminderTypeSelect = document.getElementById('repeat');
+        const datetimeGroup = document.getElementById('datetime').closest('.form-group');
+        const form = document.querySelector('.reminder-form');
+
+        const tg = window.Telegram.WebApp;
+
+        console.log("init data tg", tg.initData, tg.initDataUnsafe)
+
+        reminderTypeSelect.addEventListener('change', function () {
+            if (reminderTypeSelect.value === 'none') {
+                datetimeGroup.classList.add('hidden');
+                datetimeGroup.querySelector('#datetime').required = false;
+            } else {
+                datetimeGroup.classList.remove('hidden');
+                datetimeGroup.querySelector('#datetime').required = true;
+            }
+        });
+
+        form.addEventListener('submit', function (event) {
+            event.preventDefault();
+            alert('Form submitted! You can handle the data here.');
+        });
+
+        // Initial check in case the default is not "daily"
+        if (reminderTypeSelect.value === 'none') {
+            datetimeGroup.classList.add('hidden');
+            datetimeGroup.querySelector('#datetime').required = false;
+        } else {
+            datetimeGroup.classList.remove('hidden');
+            datetimeGroup.querySelector('#datetime').required = true;
+        }
+
+        function toggleMenu() {
+            document.getElementById("mobileNav").classList.toggle("active");
+        }
+
+        function applyTheme() {
+            document.body.style.background = tg.themeParams.bg_color;
+            document.body.style.color = tg.themeParams.text_color;
+        }
+
+        tg.onEvent("themeChanged", applyTheme);
+        applyTheme();
+    </script>
+
 </body>
+
 </html>
