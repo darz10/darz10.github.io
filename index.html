@@ -196,10 +196,66 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+        }
+
+        .reminder-card:hover {
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .expand-btn {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .expand-btn:hover {
+            background: #1b6abf;
         }
 
         .reminder-info {
             flex-grow: 1;
+        }
+
+        .reminder-modal {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            width: 90%;
+            max-width: 400px;
+        }
+
+        .modal-content h2 {
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+            color: var(--primary-color);
+        }
+
+        .modal-content p {
+            margin-bottom: 0.8rem;
+        }
+
+        .close-modal {
+            background: red;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .close-modal:hover {
+            background: darkred;
         }
 
         .reminder-title {
@@ -254,6 +310,79 @@
             display: block;
         }
 
+        .reminder-details {
+            margin-top: 1rem;
+            padding: 0.5rem;
+            background: #f0f0f0;
+            border-radius: 8px;
+        }
+
+        .pagination {
+            margin-top: 1rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .pagination button {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .pagination button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 26px;
+        }
+
+        .toggle-switch input {
+            display: none;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #b2ddb1;
+            /* Светло-зеленый фон */
+            border-radius: 26px;
+            transition: 0.3s;
+        }
+
+        .slider::before {
+            content: "";
+            position: absolute;
+            height: 20px;
+            width: 20px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            border-radius: 50%;
+            transition: 0.3s;
+        }
+
+        input:checked+.slider {
+            background-color: #69c16e;
+            /* Более насыщенный зеленый при включении */
+        }
+
+        input:checked+.slider::before {
+            transform: translateX(24px);
+        }
 
         /* Адаптивность */
         @media (max-width: 768px) {
@@ -324,13 +453,14 @@
             <div class="logo"></div>
             <h1>Rememor</h1>
         </div>
-        <div class="burger-menu" onclick="toggleMenu()">
+        <div class="burger-menu" id="burgerMenu" onclick="toggleMenu()">
             <div></div>
             <div></div>
             <div></div>
         </div>
         <nav class="mobile-nav" id="mobileNav">
-            <a href="#">Все напоминания</a>
+            <button id="burgerCreateButton" class="btn btn-primary" style="width: 100%;">+</button>
+            <a id="burgerToggleButton" href="#">Все напоминания</a>
             <a href="#">Настройки</a>
         </nav>
     </header>
@@ -338,15 +468,18 @@
     <main class="container">
         <div class="main-layout">
             <aside class="sidebar">
-                <nav>
-                    <ul class="nav-list">
-                        <li class="nav-item"><a href="#">Все напоминания</a></li>
-                        <li class="nav-item"><a href="#">Настройки</a></li>
-                    </ul>
-                </nav>
+                <ul class="nav-list">
+                    <li class="nav-item">
+                        <button id="createReminderButton" class="btn btn-primary" style="width: 100%;">+</button>
+                    </li>
+                    <li class="nav-item"><a href="#" id="sidebarToggleButton">Все напоминания</a></li>
+                    <li class="nav-item"><a href="#" id="settingsButton">Настройки</a></li>
+                </ul>
             </aside>
 
             <div class="content">
+                <div class="reminders-list"></div>
+                <div class="pagination"></div>
                 <form class="reminder-form">
                     <div class="form-group">
                         <label for="repeat">Тип напоминания</label>
@@ -376,53 +509,237 @@
                         <button type="button" class="btn btn-secondary">Отмена</button>
                     </div>
                 </form>
+
+                <div class="settings-container">
+                    <h2>Настройки</h2>
+
+                    <div class="form-group">
+                        <label for="timezone">Выберите временную зону:</label>
+                        <select id="timezone">
+                            <option value="UTC">UTC</option>
+                            <option value="Europe/Moscow">Москва (GMT+3)</option>
+                            <option value="America/New_York">Нью-Йорк (GMT-5)</option>
+                            <option value="Asia/Tokyo">Токио (GMT+9)</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <!-- <label>
+                            <input type="checkbox" id="autoDelete"> Удалять прошедшие напоминания
+                        </label> -->
+                        <span>Удалять прошедшие напоминания</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="autoDelete">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+
+                    <button class="btn btn-primary" id="saveSettings">Сохранить</button>
+                </div>
             </div>
         </div>
     </main>
     <script>
-        const reminderTypeSelect = document.getElementById('repeat');
-        const datetimeGroup = document.getElementById('datetime').closest('.form-group');
-        const form = document.querySelector('.reminder-form');
-
-        const tg = window.Telegram.WebApp;
-
-        console.log("init data tg", tg.initData, tg.initDataUnsafe)
-
-        reminderTypeSelect.addEventListener('change', function () {
-            if (reminderTypeSelect.value === 'none') {
-                datetimeGroup.classList.add('hidden');
-                datetimeGroup.querySelector('#datetime').required = false;
-            } else {
-                datetimeGroup.classList.remove('hidden');
-                datetimeGroup.querySelector('#datetime').required = true;
-            }
-        });
-
-        form.addEventListener('submit', function (event) {
-            event.preventDefault();
-            alert('Form submitted! You can handle the data here.');
-        });
-
-        // Initial check in case the default is not "daily"
-        if (reminderTypeSelect.value === 'none') {
-            datetimeGroup.classList.add('hidden');
-            datetimeGroup.querySelector('#datetime').required = false;
-        } else {
-            datetimeGroup.classList.remove('hidden');
-            datetimeGroup.querySelector('#datetime').required = true;
-        }
-
         function toggleMenu() {
-            document.getElementById("mobileNav").classList.toggle("active");
+            const mobileNav = document.getElementById("mobileNav");
+            mobileNav.classList.toggle("active");
         }
 
-        function applyTheme() {
-            document.body.style.background = tg.themeParams.bg_color;
-            document.body.style.color = tg.themeParams.text_color;
-        }
+        document.addEventListener("DOMContentLoaded", function () {
+            const createReminderButton = document.getElementById("createReminderButton");
+            const sidebarToggleButton = document.getElementById("sidebarToggleButton");
+            const form = document.querySelector(".reminder-form");
+            const reminderListContainer = document.querySelector(".reminders-list");
+            const paginationControls = document.querySelector(".pagination");
 
-        tg.onEvent("themeChanged", applyTheme);
-        applyTheme();
+            const burgerMenu = document.getElementById("burgerMenu");
+            const mobileNav = document.getElementById("mobileNav");
+            const burgerToggleButton = document.getElementById("burgerToggleButton");
+            const burgerCreateButton = document.getElementById("burgerCreateButton");
+
+            const reminderTypeSelect = document.getElementById("repeat"); // Выбор типа напоминания при создании.
+            const datetimeField = document.getElementById("datetimeField"); // Обертка для поля даты
+            const datetimeInput = document.getElementById("datetime"); // Само поле даты
+
+            const settingsButton = document.getElementById("settingsButton");
+            const settingsContainer = document.querySelector(".settings-container");
+            const timezoneSelect = document.getElementById("timezone");
+            const autoDeleteCheckbox = document.getElementById("autoDelete");
+            const saveSettingsButton = document.getElementById("saveSettings");
+
+            settingsButton.addEventListener("click", function (event) {
+                event.preventDefault();
+
+                const isSettingsVisible = settingsContainer.style.display === "block";
+
+                // Скрываем/показываем элементы
+                settingsContainer.style.display = isSettingsVisible ? "none" : "block";
+                reminderListContainer.style.display = isSettingsVisible ? "block" : "none";
+                paginationControls.style.display = isSettingsVisible ? "flex" : "none";
+                form.style.display = isSettingsVisible ? "block" : "none";
+            });
+
+            function toggleDateTimeField() {
+                if (reminderTypeSelect.value === "none") {
+                    datetimeInput.parentElement.style.display = "none"; // Скрываем контейнер поля
+                    datetimeInput.required = false;
+                } else {
+                    datetimeInput.parentElement.style.display = "block"; // Показываем контейнер
+                    datetimeInput.required = true;
+                }
+            }
+
+            if (reminderTypeSelect) {
+                reminderTypeSelect.addEventListener("change", toggleDateTimeField);
+            }
+
+            let reminders = [
+                { title: "Напоминание 1", description: "Описание 1", datetime: "2025-03-14T10:00", type: "daily", status: "Активное", expanded: false },
+                { title: "Напоминание 2", description: "Описание 2", datetime: "2025-03-15T12:30", type: "none", status: "Ожидание", expanded: false },
+                { title: "Напоминание 3", description: "Описание 3", datetime: "2025-03-16T08:45", type: "daily", status: "Завершено", expanded: false },
+                { title: "Напоминание 4", description: "Описание 4", datetime: "2025-03-17T14:15", type: "none", status: "Активное", expanded: false },
+                { title: "Напоминание 5", description: "Описание 5", datetime: "2025-03-18T18:00", type: "daily", status: "Ожидание", expanded: false },
+                { title: "Напоминание 6", description: "Описание 6", datetime: "2025-03-19T20:30", type: "none", status: "Завершено", expanded: false }
+            ];
+
+            const itemsPerPage = 3;
+            let currentPage = 1;
+
+            function showForm() {
+                form.style.display = "block";
+                reminderListContainer.style.display = "none";
+                paginationControls.style.display = "none";
+            }
+
+            if (burgerToggleButton) {
+                burgerToggleButton.addEventListener("click", function (event) {
+                    event.preventDefault();
+                    showReminders();
+                });
+            }
+
+            if (burgerCreateButton) {
+                burgerCreateButton.addEventListener("click", function (event) {
+                    event.preventDefault();
+                    showForm();
+                });
+            }
+
+            function showReminders() {
+                form.style.display = "none";
+                reminderListContainer.style.display = "block";
+                paginationControls.style.display = "flex";
+                updateRemindersList(); // ОБЯЗАТЕЛЬНО обновляем список
+            }
+
+            createReminderButton.addEventListener("click", function () {
+                showForm();
+            });
+
+            sidebarToggleButton.addEventListener("click", function (event) {
+                event.preventDefault();
+                showReminders();
+            });
+
+            function updateRemindersList() {
+                reminderListContainer.innerHTML = "";
+
+                const start = (currentPage - 1) * itemsPerPage;
+                const end = start + itemsPerPage;
+                const paginatedReminders = reminders.slice(start, end);
+
+                if (paginatedReminders.length === 0) {
+                    reminderListContainer.innerHTML = "<p>Напоминаний пока нет.</p>";
+                    return;
+                }
+
+                paginatedReminders.forEach((reminder, index) => {
+                    const card = document.createElement("div");
+                    card.classList.add("reminder-card");
+                    card.innerHTML = `
+                        <div class="reminder-info">
+                            <div class="reminder-title">${reminder.title}</div>
+                            <div class="reminder-meta">${reminder.datetime || "Без даты"} | ${reminder.status}</div>
+                            <button class="expand-btn" data-index="${start + index}">
+                                ${reminder.expanded ? "Скрыть" : "Подробнее"}
+                            </button>
+                            <div class="reminder-details" style="display: ${reminder.expanded ? "block" : "none"};">
+                                <p><strong>Описание:</strong> ${reminder.description || "Нет"}</p>
+                                <p><strong>Тип:</strong> ${reminder.type === "none" ? "Цикличное" : "Одноразовое"}</p>
+                            </div>
+                        </div>
+                    `;
+                    reminderListContainer.appendChild(card);
+                });
+
+                document.querySelectorAll(".expand-btn").forEach((btn) => {
+                    btn.addEventListener("click", function () {
+                        toggleReminderDetails(this.dataset.index);
+                    });
+                });
+
+                updatePaginationControls();
+            }
+
+            function toggleReminderDetails(index) {
+                reminders[index].expanded = !reminders[index].expanded;
+                updateRemindersList();
+            }
+
+            function updatePaginationControls() {
+                paginationControls.innerHTML = `
+            <button class="prev-page" ${currentPage === 1 ? "disabled" : ""}>Назад</button>
+            <span>Страница ${currentPage} из ${Math.ceil(reminders.length / itemsPerPage)}</span>
+            <button class="next-page" ${currentPage === Math.ceil(reminders.length / itemsPerPage) ? "disabled" : ""}>Вперед</button>
+        `;
+
+                document.querySelector(".prev-page").addEventListener("click", function () {
+                    if (currentPage > 1) {
+                        currentPage--;
+                        updateRemindersList();
+                    }
+                });
+
+                document.querySelector(".next-page").addEventListener("click", function () {
+                    if (currentPage < Math.ceil(reminders.length / itemsPerPage)) {
+                        currentPage++;
+                        updateRemindersList();
+                    }
+                });
+            }
+
+            // Загрузка сохраненных настроек
+            function loadSettings() {
+                const savedTimezone = localStorage.getItem("timezone") || "UTC";
+                const autoDelete = localStorage.getItem("autoDelete") === "true";
+                timezoneSelect.value = savedTimezone;
+                autoDeleteCheckbox.checked = autoDelete;
+            }
+
+            // Сохранение настроек
+            saveSettingsButton.addEventListener("click", function () {
+                localStorage.setItem("timezone", timezoneSelect.value);
+                localStorage.setItem("autoDelete", autoDeleteCheckbox.checked);
+                alert("Настройки сохранены");
+            });
+
+            loadSettings();
+
+            // По умолчанию показываем список напоминаний
+            // showReminders();
+
+            const backendUrl = " https://14d3-77-46-237-89.ngrok-free.app/api/v1/auth_web_view_v1";
+
+            const initData = window.Telegram.WebApp.initData;
+            fetch(backendUrl, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ initData }),
+            })
+                .then(response => response.json())
+                .then(data => console.log(data))
+                .catch(error => console.error("Error:", error));
+        });
     </script>
 
 </body>
