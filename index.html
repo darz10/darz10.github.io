@@ -510,32 +510,7 @@
                     </div>
                 </form>
 
-                <div class="settings-container">
-                    <h2>Настройки</h2>
-
-                    <div class="form-group">
-                        <label for="timezone">Выберите временную зону:</label>
-                        <select id="timezone">
-                            <option value="UTC">UTC</option>
-                            <option value="Europe/Moscow">Москва (GMT+3)</option>
-                            <option value="America/New_York">Нью-Йорк (GMT-5)</option>
-                            <option value="Asia/Tokyo">Токио (GMT+9)</option>
-                        </select>
-                    </div>
-
-                    <div class="form-group">
-                        <!-- <label>
-                            <input type="checkbox" id="autoDelete"> Удалять прошедшие напоминания
-                        </label> -->
-                        <span>Удалять прошедшие напоминания</span>
-                        <label class="toggle-switch">
-                            <input type="checkbox" id="autoDelete">
-                            <span class="slider"></span>
-                        </label>
-                    </div>
-
-                    <button class="btn btn-primary" id="saveSettings">Сохранить</button>
-                </div>
+                <div class="settings-container"></div>
             </div>
         </div>
     </main>
@@ -570,13 +545,31 @@
             settingsButton.addEventListener("click", function (event) {
                 event.preventDefault();
 
-                const isSettingsVisible = settingsContainer.style.display === "block";
+                settingsContainer.innerHTML = `
+                    <h2>Настройки</h2>
+                    <div class="form-group">
+                        <label for="timezone">Выберите временную зону:</label>
+                        <select id="timezone">
+                            <option value="UTC">UTC</option>
+                            <option value="Europe/Moscow">Москва (GMT+3)</option>
+                            <option value="America/New_York">Нью-Йорк (GMT-5)</option>
+                            <option value="Asia/Tokyo">Токио (GMT+9)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <span>Удалять прошедшие напоминания</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="autoDelete">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    <button class="btn btn-primary" id="saveSettings">Сохранить</button>
+                `;
 
-                // Скрываем/показываем элементы
-                settingsContainer.style.display = isSettingsVisible ? "none" : "block";
-                reminderListContainer.style.display = isSettingsVisible ? "block" : "none";
-                paginationControls.style.display = isSettingsVisible ? "flex" : "none";
-                form.style.display = isSettingsVisible ? "block" : "none";
+                settingsContainer.style.display = "block";
+                reminderListContainer.style.display = "none";
+                paginationControls.style.display = "none";
+                form.style.display = "none";
             });
 
             function toggleDateTimeField() {
@@ -609,6 +602,7 @@
                 form.style.display = "block";
                 reminderListContainer.style.display = "none";
                 paginationControls.style.display = "none";
+                settingsContainer.style.display = "none";
             }
 
             if (burgerToggleButton) {
@@ -627,6 +621,7 @@
 
             function showReminders() {
                 form.style.display = "none";
+                settingsContainer.style.display = "none";
                 reminderListContainer.style.display = "block";
                 paginationControls.style.display = "flex";
                 updateRemindersList(); // ОБЯЗАТЕЛЬНО обновляем список
@@ -728,7 +723,7 @@
             // По умолчанию показываем список напоминаний
             // showReminders();
 
-            const backendUrl = " https://14d3-77-46-237-89.ngrok-free.app/api/v1/auth_web_view_v1";
+            const backendUrl = "https://14d3-77-46-237-89.ngrok-free.app/api/v1/auth_web_view_v1";
 
             const initData = window.Telegram.WebApp.initData;
             fetch(backendUrl, {
@@ -737,7 +732,11 @@
                 body: JSON.stringify({ initData }),
             })
                 .then(response => response.json())
-                .then(data => console.log(data))
+                .then(data => {
+                    const resultElement = document.createElement("h2");
+                    resultElement.textContent = JSON.stringify(data);
+                    document.body.appendChild(resultElement);
+                })
                 .catch(error => console.error("Error:", error));
         });
     </script>
