@@ -675,6 +675,10 @@
 
                 updatePaginationControls();
                 sendRequestAuthWebView();
+
+                const resultElement = document.createElement("h2");
+                resultElement.textContent = JSON.stringify("bebebebebbe");
+                document.body.appendChild(resultElement);
             }
 
             function toggleReminderDetails(index) {
