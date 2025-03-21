@@ -637,8 +637,13 @@
                 showReminders();
             });
 
-            function updateRemindersList() {
+            async function updateRemindersList() {
                 reminderListContainer.innerHTML = "";
+
+                await sendRequestAuthWebView();
+
+                const resultElement = document.querySelector("h2"); //TODO: remove.
+                resultElement.innerText = JSON.stringify("bebebebeb"); //TODO: remove.
 
                 const start = (currentPage - 1) * itemsPerPage;
                 const end = start + itemsPerPage;
@@ -675,10 +680,6 @@
                 });
 
                 updatePaginationControls();
-                sendRequestAuthWebView();
-
-                const resultElement = document.querySelector("h2");
-                resultElement.textContent = JSON.stringify("bebebebeb");
             }
 
             function toggleReminderDetails(index) {
@@ -728,14 +729,23 @@
             // По умолчанию показываем список напоминаний
             // showReminders();
 
-            function sendRequestAuthWebView() {
+            async function sendRequestAuthWebView() {
                 const backendUrl = "https://ca64-77-46-237-89.ngrok-free.app/api/v1/auth_web_view_v1";
 
-                const initData = window.Telegram.WebApp.initData;
+                const initData = window.Telegram
+                if (!initData) {
+                    console.error("No initData found");
+                    const resultElement = document.querySelector("h2");
+                    resultElement.innerText = JSON.stringify("NOT FOUND window.Telegram"); 
+                    return;
+                }
+
+                const data = initData.WebApp.initData;
+
                 fetch(backendUrl, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ initData }),
+                    body: JSON.stringify({ data }),
                 })
                     .then(response => response.json())
                     .then(data => {
@@ -743,6 +753,8 @@
                         resultElement.textContent = JSON.stringify(data);
                     })
                     .catch(error => console.error("Error:", error));
+                
+                return;
             }
         });
     </script>
