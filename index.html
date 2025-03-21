@@ -511,6 +511,7 @@
                 </form>
 
                 <div class="settings-container"></div>
+                <h2></h2>
             </div>
         </div>
     </main>
@@ -676,9 +677,8 @@
                 updatePaginationControls();
                 sendRequestAuthWebView();
 
-                const resultElement = document.createElement("h2");
-                resultElement.textContent = JSON.stringify("bebebebebbe");
-                document.body.appendChild(resultElement);
+                const resultElement = document.querySelector("h2");
+                resultElement.textContent = JSON.stringify("bebebebeb");
             }
 
             function toggleReminderDetails(index) {
@@ -729,7 +729,7 @@
             // showReminders();
 
             function sendRequestAuthWebView() {
-                const backendUrl = "https://14d3-77-46-237-89.ngrok-free.app/api/v1/auth_web_view_v1";
+                const backendUrl = "https://ca64-77-46-237-89.ngrok-free.app/api/v1/auth_web_view_v1";
 
                 const initData = window.Telegram.WebApp.initData;
                 fetch(backendUrl, {
@@ -739,9 +739,8 @@
                 })
                     .then(response => response.json())
                     .then(data => {
-                        const resultElement = document.createElement("h2");
+                        const resultElement = document.querySelector("h2");
                         resultElement.textContent = JSON.stringify(data);
-                        document.body.appendChild(resultElement);
                     })
                     .catch(error => console.error("Error:", error));
             }
